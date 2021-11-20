@@ -3,60 +3,67 @@ package com.john.criptomensaje
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
+
+    private val orderedAlphabet: HashMap<Char, Char> = HashMap()
+
+    //val messageEncrypted: String = "53‡‡†305))6*;4826)4‡.)4‡);806*;48†8¶60))85;;]8*;:‡*8†83(88)5*†;46(;88*96*?;8)*‡(;485);5*†2:*‡(;4956*2(5*—4)8¶8*;4069285);)6†8)4‡‡;1(‡9;48081;8:8‡1;48†85;4)485†528806*81(‡9;48;(88;4(‡?34;48)4‡;161;:188;‡?;"
+    private val messageEncrypted =
+        "53‡‡†305))6*;4826)4‡.)4‡);806*;48†8¶60))85;1‡(;:‡*8†83(88)5*†;46(;88*96*?;8)*‡(;485);5*†2:*‡(;4956*2(5*—4)8¶8*;4069285);)6†8)4‡‡;1(‡9;48081;8:8‡1;48†85;4)485†528806*81(‡9;48;(88;4(‡?34;48)4‡;161;:188;‡?;"
+    private var tvMessage: TextView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        countLetters()
+        tvMessage = findViewById(R.id.tv_message_encrypted)
+        orderAlphabet()
+        tvMessage?.setText(decipher())
     }
 
-    fun countLetters() {
-        //val messageCripto: String = "53‡‡†305))6*;4826)4‡.)4‡);806*;48†8¶60))85;;]8*;:‡*8†83(88)5*†;46(;88*96*?;8)*‡(;485);5*†2:*‡(;4956*2(5*—4)8¶8*;4069285);)6†8)4‡‡;1(‡9;48081;8:8‡1;48†85;4)485†528806*81(‡9;48;(88;4(‡?34;48)4‡;161;:188;‡?;"
-        val messageCripto: String = "53‡‡†305))6*;4826)4‡.)4‡);806*;48†8¶60))85;1‡(;:‡*8†83(88)5*†;46(;88*96*?;8)*‡(;485);5*†2:*‡(;4956*2(5*—4)8¶8*;4069285);)6†8)4‡‡;1(‡9;48081;8:8‡1;48†85;4)485†528806*81(‡9;48;(88;4(‡?34;48)4‡;161;:188;‡?;"
-        val messageCriptoChar = messageCripto.toCharArray()
-
-        val hashMap : HashMap<Char, Int>
-                = HashMap<Char, Int> ()
-
+    fun countLetters(): Map<Char, Int> {
+        val messageCriptoChar = messageEncrypted.toCharArray()
+        val numberOfCharacters: HashMap<Char, Int> = HashMap<Char, Int>()
         messageCriptoChar.forEach { c ->
-            val number = contarCaracteres(messageCripto, c)
-            if(!hashMap.containsKey(c))
-                hashMap.put(c,number)
+            val number = countCharacters(messageEncrypted, c)
+            if (!numberOfCharacters.containsKey(c))
+                numberOfCharacters.put(c, number)
         }
+        return numberOfCharacters.toList().sortedByDescending { (_, value) -> value }.toMap()
+    }
 
-        val result = hashMap.toList().sortedByDescending { (_, value) -> value}.toMap()
-        Log.d("",result.toString())
+    fun getAlphabet(): CharArray {
+        //val alphabet = "etaonihsrlducmwyfgpbvkjxqz".toCharArray()
+        //val alphabet = "etaonihsrdflbmgyupvbwkj".toCharArray()
+        val alphabet = "ethosnairdflbmgyuvpcwkj".toCharArray()
 
-        val abecedario = "etaonihsrlducmwyfgpbvkjxqz".toCharArray()
+        return alphabet
+    }
 
-        val abecedarioOrdenado : HashMap<Char, Char>
-                = HashMap<Char, Char> ()
-
+    fun orderAlphabet() {
         var i = 0
-        result.forEach{
-            abecedarioOrdenado.put(it.key,abecedario[i])
+        countLetters().forEach {
+            orderedAlphabet.put(it.key, getAlphabet()[i])
             i++
         }
-        Log.d("",abecedarioOrdenado.toString())
-
-        var mensajeDesencriptado = ""
-        messageCripto.toCharArray().forEach {
-            mensajeDesencriptado += abecedarioOrdenado.getValue(it)
-        }
-        Log.d("",mensajeDesencriptado)
     }
 
-    //calcular el número de veces que se repite un carácter en un String
-    fun contarCaracteres(cadena: String, caracter: Char): Int {
+    fun decipher() :String{
+        var decryptedMessage = ""
+        messageEncrypted.toCharArray().forEach {
+            decryptedMessage += orderedAlphabet.getValue(it)
+        }
+        return decryptedMessage
+    }
+
+    fun countCharacters(messageEncrypted: String, character: Char): Int {
         var posicion: Int
         var contador = 0
-        //se busca la primera vez que aparece
-        posicion = cadena.indexOf(caracter)
-        while (posicion != -1) { //mientras se encuentre el caracter
-            contador++ //se cuenta
-            //se sigue buscando a partir de la posición siguiente a la encontrada
-            posicion = cadena.indexOf(caracter, posicion + 1)
+        posicion = messageEncrypted.indexOf(character)
+        while (posicion != -1) {
+            contador++
+            posicion = messageEncrypted.indexOf(character, posicion + 1)
         }
         return contador
     }
